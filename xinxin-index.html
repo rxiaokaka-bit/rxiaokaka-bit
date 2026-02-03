@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日开心时刻 | 收藏生活的小美好</title>
+    <!-- 外部资源 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <!-- 谷歌字体：手写体+无衬线体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind 自定义配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        happy: '#F97316', // 暖橙主色
+                        sweet: '#EC4899', // 甜粉辅助色
+                        calm: '#3B82F6',  // 静谧蓝（新增）
+                        fresh: '#10B981', // 清新绿（新增）
+                        light: '#F5F5F4', // 米白底色
+                        dark: '#27272a',  // 深灰文字
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans SC', 'system-ui', 'sans-serif'],
+                        handwriting: ['"Ma Shan Zheng"', 'cursive'],
+                    },
+                    boxShadow: {
+                        'card': '0 8px 24px rgba(249, 115, 22, 0.08)',
+                        'card-hover': '0 12px 32px rgba(249, 115, 22, 0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            /* 磨砂玻璃 */
+            .backdrop-blur-custom {
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            /* 时间轴线 */
+            .timeline-line {
+                @apply absolute left-1/2 transform -translate-x-1/2 w-0.5 bg-gradient-to-b from-happy via-sweet to-calm h-full z-0;
+            }
+            /* 滚动渐入动画 */
+            .fade-in {
+                opacity: 0;
+                transform: translateY(30px);
+                transition: opacity 0.8s ease, transform 0.8s ease;
+            }
+            .fade-in.active {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            /* 自定义滚动条 */
+            ::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+            ::-webkit-scrollbar-track {
+                @apply bg-light;
+            }
+            ::-webkit-scrollbar-thumb {
+                @apply bg-gradient-to-b from-happy to-sweet rounded-full;
+            }
+            /* 标签样式 */
+            .happy-tag {
+                @apply inline-block px-2 py-1 rounded-full text-xs mr-2 mb-2 bg-white shadow-sm border border-gray-100 hover:bg-happy/5 transition-colors;
+            }
+            /* 心情评分星星 */
+            .rating-star {
+                @apply text-happy;
+            }
+            .rating-star-empty {
+                @apply text-gray-200;
+            }
+            /* 返回顶部按钮 */
+            .back-to-top {
+                @apply fixed bottom-8 right-8 w-12 h-12 rounded-full bg-gradient-to-r from-happy to-sweet text-white shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:scale-110 z-50;
+            }
+            .back-to-top.active {
+                @apply opacity-100 visible;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-light to-white min-h-screen font-sans text-dark">
+    <!-- 顶部吸顶导航栏 -->
+    <header class="fixed top-0 w-full z-50 transition-all duration-300" id="navbar">
+        <div class="backdrop-blur-custom bg-white/80 border-b border-gray-100/50 py-4 px-6 md:px-12">
+            <div class="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto gap-4">
+                <!-- 标题 -->
+                <h1 class="text-2xl md:text-3xl font-handwriting text-transparent bg-clip-text bg-gradient-to-r from-happy to-sweet">
+                    每日开心时刻
+                </h1>
+                
+                <!-- 搜索+筛选栏 -->
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <!-- 搜索框 -->
+                    <div class="relative flex-1 md:flex-initial">
+                        <input type="text" placeholder="搜索开心瞬间..." 
+                            class="w-full md:w-64 pl-10 pr-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-happy/20 focus:border-happy transition-all">
+                        <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    
+                    <!-- 分类筛选 -->
+                    <select class="px-3 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-happy/20 focus:border-happy bg-white">
+                        <option value="all">全部分类</option>
+                        <option value="nature">自然田园</option>
+                        <option value="childhood">童年回忆</option>
+                        <option value="food">美食治愈</option>
+                        <option value="family">亲情温暖</option>
+                    </select>
+                    
+                    <!-- 新增记录按钮 -->
+                    <button class="flex items-center gap-2 bg-gradient-to-r from-happy to-sweet text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300" id="addRecordBtn">
+                        <i class="fa fa-plus"></i>
+                        <span class="hidden md:inline">记录今日开心</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 新增记录弹窗（默认隐藏） -->
+    <div class="fixed inset-0 bg-dark/50 backdrop-blur-sm flex items-center justify-center z-50 hidden" id="recordModal">
+        <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl transform transition-all scale-95 opacity-0" id="modalContent">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-handwriting text-happy">记录新的开心瞬间</h3>
+                <button class="text-gray-500 hover:text-dark" id="closeModal">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="happyForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">开心标题</label>
+                    <input type="text" placeholder="比如：吃到了超甜的草莓" 
+                        class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-happy/20 focus:border-happy">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">开心描述</label>
+                    <textarea rows="3" placeholder="详细说说这份开心吧～" 
+                        class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-happy/20 focus:border-happy resize-none"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">日期</label>
+                        <input type="date" 
+                            class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-happy/20 focus:border-happy">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">心情评分</label>
+                        <div class="flex items-center gap-1 py-2">
+                            <i class="fa fa-star text-xl cursor-pointer rating-star"></i>
+                            <i class="fa fa-star text-xl cursor-pointer rating-star"></i>
+                            <i class="fa fa-star text-xl cursor-pointer rating-star"></i>
+                            <i class="fa fa-star text-xl cursor-pointer rating-star-empty"></i>
+                            <i class="fa fa-star text-xl cursor-pointer rating-star-empty"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">添加标签</label>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="happy-tag cursor-pointer hover:bg-happy/10">🥰 治愈</span>
+                        <span class="happy-tag cursor-pointer hover:bg-happy/10">🍂 秋日</span>
+                        <span class="happy-tag cursor-pointer hover:bg-happy/10">🐱 撸猫</span>
+                        <span class="happy-tag cursor-pointer hover:bg-happy/10">🌱 自然</span>
+                        <span class="happy-tag cursor-pointer hover:bg-happy/10">🍜 美食</span>
+                        <span class="happy-tag cursor-pointer hover:bg-happy/10">✍️ 自定义</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">上传图片（可选）</label>
+                    <div class="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-happy/50 transition-colors">
+                        <i class="fa fa-upload text-gray-400 text-2xl mb-2"></i>
+                        <p class="text-sm text-gray-500">点击或拖拽图片到此处</p>
+                        <input type="file" class="hidden" accept="image/*">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" class="px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors" id="cancelRecord">取消</button>
+                    <button type="submit" class="px-6 py-2 bg-gradient-to-r from-happy to-sweet text-white rounded-lg shadow hover:shadow-md transition-all">保存开心</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 页面头部横幅 -->
+    <section class="pt-28 pb-16 md:pt-36 md:pb-24 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-3xl md:text-5xl font-bold mb-4 text-dark">
+                收藏每一个<span class="text-transparent bg-clip-text bg-gradient-to-r from-happy to-sweet">闪闪发光</span>的开心瞬间
+            </h2>
+            <p class="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto mb-8">
+                生活的美好，藏在每一天的小开心里。把快乐记下来，日子就会变得甜甜的～
+            </p>
+            
+            <!-- 新增：开心统计卡片 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-8">
+                <div class="bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition-shadow">
+                    <p class="text-gray-500 text-sm mb-1">总开心记录</p>
+                    <p class="text-2xl md:text-3xl font-bold text-happy">28</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition-shadow">
+                    <p class="text-gray-500 text-sm mb-1">本月开心</p>
+                    <p class="text-2xl md:text-3xl font-bold text-sweet">8</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition-shadow">
+                    <p class="text-gray-500 text-sm mb-1">最爱的标签</p>
+                    <p class="text-2xl md:text-3xl font-bold text-calm">🥰 治愈</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition-shadow">
+                    <p class="text-gray-500 text-sm mb-1">平均心情分</p>
+                    <div class="flex items-center text-happy text-xl">
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star-half-o"></i>
+                        <span class="ml-2 text-dark">4.5</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 新增：心情趋势图 -->
+            <div class="mt-12 bg-white rounded-xl shadow-card p-6 max-w-4xl mx-auto">
+                <h3 class="text-lg font-medium mb-4 text-center">近期心情趋势</h3>
+                <canvas id="moodChart" height="200"></canvas>
+            </div>
+            
+            <!-- 新增：随机开心语录 -->
+            <div class="mt-12 bg-gradient-to-r from-happy/10 to-sweet/10 rounded-xl p-6 max-w-2xl mx-auto">
+                <p class="font-handwriting text-xl md:text-2xl text-center text-dark italic">
+                    "生活就像一盒糖果，你永远不知道下一颗有多甜 🍬"
+                </p>
+                <button class="mt-3 text-sm text-happy hover:text-sweet transition-colors flex items-center gap-1 mx-auto">
+                    <i class="fa fa-refresh"></i> 换一句开心语录
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心：每日开心时间轴 -->
+    <section class="px-6 pb-20">
+        <div class="max-w-5xl mx-auto relative">
+            <!-- 渐变时间轴线 -->
+            <div class="timeline-line"></div>
+
+            <!-- 今日开心（最新记录） -->
+            <div class="fade-in relative z-10 flex flex-col md:flex-row items-center mb-12 md:mb-16">
+                <div class="md:w-1/2 md:pr-12 mb-6 md:mb-0 md:text-right order-2 md:order-1">
+                    <span class="inline-block bg-happy/10 text-happy px-3 py-1 rounded-full text-sm mb-3">
+                        2025年10月12日 星期日 「今日开心」 <span class="ml-2 bg-fresh/10 text-fresh px-2 py-0.5 rounded text-xs">晴☀️</span>
+                    </span>
+                    <div class="mb-2">
+                        <span class="happy-tag">🥰 治愈</span>
+                        <span class="happy-tag">🍂 秋日</span>
+                        <span class="happy-tag">👨‍👩‍👧‍👦 亲情</span>
+                    </div>
+                    <div class="flex justify-end mb-2">
+                        <div class="flex">
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <span class="ml-1 text-sm text-gray-500">5分</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2">天蓝，菜绿，风温柔</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        今日份快乐，是田园给的！走进菜园子，才懂什么叫 “接地气的快乐”。看着一畦畦的嫩绿，心情都跟着透亮起来，眼前都是外公种的菜，整整齐齐，干干净净，看得出这老头也是有强迫症～<br>
+                        摘了一把小青菜，回家炒了吃，满嘴都是阳光的味道，简单又满足。
+                    </p>
+                    <button class="mt-3 text-happy hover:text-sweet transition-colors flex items-center justify-end gap-1">
+                        <i class="fa fa-heart-o"></i> 收藏 <span class="text-sm">(28)</span>
+                    </button>
+                </div>
+                <div class="md:w-1/2 md:pl-12 order-1 md:order-2 flex flex-col items-center">
+                    <!-- 时间点标记 -->
+                    <div class="w-6 h-6 bg-gradient-to-r from-happy to-sweet rounded-full border-4 border-white shadow-lg mb-4 z-10"></div>
+                    <!-- 图片（新增多图预览） -->
+                    <div class="grid grid-cols-2 gap-3 rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 transform hover:scale-[1.02]">
+                        <img src="https://i.postimg.cc/6qX6Y2LK/wei-xin-tu-pian-20260203144528.jpg" alt="菜园一角" class="w-full h-auto object-cover">
+                        <img src="https://i.postimg.cc/zDHHXKPf/wei-xin-tu-pian-20260203150707.jpg" alt="摘菜的瞬间" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 昨日开心 -->
+            <div class="fade-in relative z-10 flex flex-col md:flex-row items-center mb-12 md:mb-16">
+                <div class="md:w-1/2 md:pr-12 flex flex-col items-center mb-6 md:mb-0">
+                    <div class="w-6 h-6 bg-gradient-to-r from-happy to-sweet rounded-full border-4 border-white shadow-lg mb-4 z-10"></div>
+                    <div class="rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 transform hover:scale-[1.02]">
+                        <img src="https://i.postimg.cc/tTwbM1hm/wei-xin-tu-pian-20260203145904.jpg" alt="生菜地" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+                <div class="md:w-1/2 md:pl-12 text-left">
+                    <span class="inline-block bg-happy/10 text-happy px-3 py-1 rounded-full text-sm mb-3">
+                        2025年10月11日 星期六 「下午」 <span class="ml-2 bg-calm/10 text-calm px-2 py-0.5 rounded text-xs">多云☁️</span>
+                    </span>
+                    <div class="mb-2">
+                        <span class="happy-tag">🌱 田园</span>
+                        <span class="happy-tag">🥰 治愈</span>
+                        <span class="happy-tag">🌾 童年</span>
+                    </div>
+                    <div class="mb-2">
+                        <div class="flex">
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star-empty"></i>
+                            <span class="ml-1 text-sm text-gray-500">4分</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2">生菜，自由的向往</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        就这块地，春去秋来地上有着我的童年，底下埋着我的祖祖辈辈，怎能不令人向往。<br>
+                        蹲在生菜地里，看着叶片上的露珠，仿佛回到了小时候跟着外婆种菜的日子。那时候总嫌太阳晒，现在却觉得，能有这样一片土地，是多么珍贵的幸福。
+                    </p>
+                    <button class="mt-3 text-happy hover:text-sweet transition-colors flex items-center gap-1">
+                        <i class="fa fa-heart-o"></i> 收藏 <span class="text-sm">(22)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 10月10日开心 -->
+            <div class="fade-in relative z-10 flex flex-col md:flex-row items-center mb-12 md:mb-16">
+                <div class="md:w-1/2 md:pr-12 mb-6 md:mb-0 md:text-right order-2 md:order-1">
+                    <span class="inline-block bg-happy/10 text-happy px-3 py-1 rounded-full text-sm mb-3">
+                        2025年10月10日 星期五 「前日开心」 <span class="ml-2 bg-fresh/10 text-fresh px-2 py-0.5 rounded text-xs">微风🍃</span>
+                    </span>
+                    <div class="mb-2">
+                        <span class="happy-tag">🍜 记录</span>
+                        <span class="happy-tag">💼 田园</span>
+                        <span class="happy-tag">👧 童趣</span>
+                    </div>
+                    <div class="flex justify-end mb-2">
+                        <div class="flex">
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <span class="ml-1 text-sm text-gray-500">5分</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2">站在这块土地上，才没有感觉被束缚</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        今日份下乡体验卡✅摘葱、玩水、用小橘子当墨镜，在田野里把日子过成了诗。<br>
+                        在乡下的快乐这么简单：有葱摘、有瓜玩，还有长辈的专属投喂～<br>
+                        一篮葱，两颗果，一方田埂。这是属于我们的、鲜活又温暖的秋日记忆。
+                    </p>
+                    <button class="mt-3 text-happy hover:text-sweet transition-colors flex items-center justify-end gap-1">
+                        <i class="fa fa-heart-o"></i> 收藏 <span class="text-sm">(31)</span>
+                    </button>
+                </div>
+                <div class="md:w-1/2 md:pl-12 order-1 md:order-2 flex flex-col items-center">
+                    <div class="w-6 h-6 bg-gradient-to-r from-happy to-sweet rounded-full border-4 border-white shadow-lg mb-4 z-10"></div>
+                    <div class="rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 transform hover:scale-[1.02]">
+                        <img src="https://i.postimg.cc/zDHHXKPf/wei-xin-tu-pian-20260203150707.jpg" alt="田园生活" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10月9日开心 -->
+            <div class="fade-in relative z-10 flex flex-col md:flex-row items-center mb-12 md:mb-16">
+                <div class="md:w-1/2 md:pr-12 flex flex-col items-center mb-6 md:mb-0">
+                    <div class="w-6 h-6 bg-gradient-to-r from-happy to-sweet rounded-full border-4 border-white shadow-lg mb-4 z-10"></div>
+                    <div class="rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 transform hover:scale-[1.02]">
+                        <img src="https://i.postimg.cc/TPyfqqbk/wei-xin-tu-pian-20260203151055.jpg" alt="童年小河" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+                <div class="md:w-1/2 md:pl-12 text-left">
+                    <span class="inline-block bg-happy/10 text-happy px-3 py-1 rounded-full text-sm mb-3">
+                        2025年10月9日 星期四 「往日开心」 <span class="ml-2 bg-calm/10 text-calm px-2 py-0.5 rounded text-xs">小雨🌧️</span>
+                    </span>
+                    <div class="mb-2">
+                        <span class="happy-tag">🎶 回忆</span>
+                        <span class="happy-tag">🚶 童年</span>
+                        <span class="happy-tag">💧 自然</span>
+                    </div>
+                    <div class="mb-2">
+                        <div class="flex">
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star-half-o rating-star"></i>
+                            <span class="ml-1 text-sm text-gray-500">4.5分</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2">小时候，趴在这小河边扒龙虾</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        小时候趴在这条河里扒龙虾，小时候也不觉得手疼，也不管是不是蛇洞，看见洞手直接伸进去，龙虾一夹，连龙虾一起带出来，一只龙虾可以玩很久。<br>
+                        如今再走到河边，水还是那么清，只是再也没有勇气伸手去扒洞了。但那份简单的快乐，却永远留在了心里。
+                    </p>
+                    <button class="mt-3 text-happy hover:text-sweet transition-colors flex items-center gap-1">
+                        <i class="fa fa-heart-o"></i> 收藏 <span class="text-sm">(45)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 10月8日开心 -->
+            <div class="fade-in relative z-10 flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 md:pr-12 mb-6 md:mb-0 md:text-right order-2 md:order-1">
+                    <span class="inline-block bg-happy/10 text-happy px-3 py-1 rounded-full text-sm mb-3">
+                        2025年10月8日 星期三 「往日开心」 <span class="ml-2 bg-fresh/10 text-fresh px-2 py-0.5 rounded text-xs">晴☀️</span>
+                    </span>
+                    <div class="mb-2">
+                        <span class="happy-tag">🌱 绿植</span>
+                        <span class="happy-tag">✨ 回忆</span>
+                        <span class="happy-tag">👵 亲情</span>
+                    </div>
+                    <div class="flex justify-end mb-2">
+                        <div class="flex">
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star rating-star"></i>
+                            <i class="fa fa-star-half-o rating-star"></i>
+                            <span class="ml-1 text-sm text-gray-500">4.5分</span>
+                        </div>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2">家通向外婆家的小道</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        这条小道，我家通向外婆家的小道，走了不知道多少遍。<br>
+                        童年是梦中的真，是真中的梦，是回忆时含泪的微笑。<br>
+                        如今外婆不在了，但每次走在这条小道上，总能想起她站在门口等我回家的样子，温暖又治愈。
+                    </p>
+                    <button class="mt-3 text-happy hover:text-sweet transition-colors flex items-center justify-end gap-1">
+                        <i class="fa fa-heart-o"></i> 收藏 <span class="text-sm">(38)</span>
+                    </button>
+                </div>
+                <div class="md:w-1/2 md:pl-12 order-1 md:order-2 flex flex-col items-center">
+                    <div class="w-6 h-6 bg-gradient-to-r from-happy to-sweet rounded-full border-4 border-white shadow-lg mb-4 z-10"></div>
+                    <div class="rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 transform hover:scale-[1.02]">
+                        <img src="https://i.postimg.cc/PxrcQd93/wei-xin-tu-pian-20260203152757.jpg" alt="童年小道" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部推荐：更多开心灵感 -->
+    <section class="px-6 pb-16 bg-light/50">
+        <div class="max-w-7xl mx-auto">
+            <h3 class="text-2xl font-bold text-center mb-8">更多开心灵感 ✨</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-card p-6 hover:shadow-card-hover transition-all">
+                    <div class="w-12 h-12 rounded-full bg-happy/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-leaf text-happy text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold mb-2">自然散步</h4>
+                    <p class="text-gray-600">每天花10分钟走出门，看看路边的花草，听听鸟叫，简单的自然接触就能带来好心情。</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-card p-6 hover:shadow-card-hover transition-all">
+                    <div class="w-12 h-12 rounded-full bg-sweet/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-pencil text-sweet text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold mb-2">手写日记</h4>
+                    <p class="text-gray-600">用手写的方式记录开心，笔尖划过纸张的触感，能让快乐更有温度。</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-card p-6 hover:shadow-card-hover transition-all">
+                    <div class="w-12 h-12 rounded-full bg-calm/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-share-alt text-calm text-xl"></i>
+                    </div>
+                    <h4 class="text-lg font-bold mb-2">分享快乐</h4>
+                    <p class="text-gray-600">把你的开心分享给家人朋友，一份快乐会变成多份，温暖更多人。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部footer -->
+    <footer class="bg-dark/95 text-white py-8 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h3 class="font-handwriting text-xl mb-4 md:mb-0 text-transparent bg-clip-text bg-gradient-to-r from-happy to-sweet">每日开心时刻</h3>
+                <div class="flex gap-4">
+                    <a href="#" class="text-white hover:text-happy transition-colors"><i class="fa fa-weibo text-xl"></i></a>
+                    <a href="#" class="text-white hover:text-happy transition-colors"><i class="fa fa-wechat text-xl"></i></a>
+                    <a href="#" class="text-white hover:text-happy transition-colors"><i class="fa fa-instagram text-xl"></i></a>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6 text-center">
+                <p class="font-handwriting text-xl mb-2">每日开心时刻 &copy; 2025</p>
+                <p class="text-gray-400 text-sm">把快乐记下来，日子会越来越甜 ✨</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 返回顶部按钮 -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
+    <!-- 核心交互JS -->
+    <script>
+        // 1. 导航栏滚动渐变
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-white/95', 'py-2', 'shadow-md');
+                navbar.classList.remove('bg-white/80', 'py-4');
+            } else {
+                navbar.classList.add('bg-white/80', 'py-4');
+                navbar.classList.remove('bg-white/95', 'py-2', 'shadow-md');
+            }
+        });
+
+        // 2. 卡片滚动渐入动画
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const checkFade = () => {
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight * 0.8;
+                if (elementTop < windowHeight) {
+                    element.classList.add('active');
+                }
+            });
+        };
+        window.addEventListener('load', checkFade);
+        window.addEventListener('scroll', checkFade);
+
+        // 3. 返回顶部按钮
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('active');
+            } else {
+                backToTop.classList.remove('active');
+            }
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 4. 新增记录弹窗
+        const recordModal = document.getElementById('recordModal');
+        const modalContent = document.getElementById('modalContent');
+        const addRecordBtn = document.getElementById('addRecordBtn');
+        const closeModal = document.getElementById('closeModal');
+        const cancelRecord = document.getElementById('cancelRecord');
+
+        // 打开弹窗
+        addRecordBtn.addEventListener('click', () => {
+            recordModal.classList.remove('hidden');
+            // 弹窗动画
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 50);
+        });
+
+        // 关闭弹窗
+        const closeModalFunc = () => {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                recordModal.classList.add('hidden');
+            }, 300);
+        };
+        closeModal.addEventListener('click', closeModalFunc);
+        cancelRecord.addEventListener('click', closeModalFunc);
+        recordModal.addEventListener('click', (e) => {
+            if (e.target === recordModal) closeModalFunc();
+        });
+
+        // 5. 心情评分星星交互
+        const ratingStars = document.querySelectorAll('#happyForm .rating-star, #happyForm .rating-star-empty');
+        ratingStars.forEach((star, index) => {
+            star.addEventListener('click', () => {
+                // 重置所有星星
+                ratingStars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.remove('rating-star-empty');
+                        s.classList.add('rating-star');
+                    } else {
+                        s.classList.remove('rating-star');
+                        s.classList.add('rating-star-empty');
+                    }
+                });
+            });
+        });
+
+        // 6. 心情趋势图表
+        window.addEventListener('load', () => {
+            const ctx = document.getElementById('moodChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['10月8日', '10月9日', '10月10日', '10月11日', '10月12日'],
+                    datasets: [{
+                        label: '心情评分',
+                        data: [4.5, 4.5, 5, 4, 5],
+                        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                        borderColor: '#F97316',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#EC4899',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // 7. 随机开心语录切换
+        const happyQuotes = [
+            "生活就像一盒糖果，你永远不知道下一颗有多甜 🍬",
+            "快乐不是拥有得多，而是计较得少 ✨",
+            "把烦心事丢掉，腾出地方装鲜花 💐",
+            "每一天都是限量版，要过得闪闪发光 ✨",
+            "小美好藏在日常里，用心就能发现 💖"
+        ];
+        const quoteBtn = document.querySelector('.mt-3.text-sm.text-happy');
+        const quoteText = document.querySelector('.font-handwriting.text-xl');
+        quoteBtn.addEventListener('click', () => {
+            const randomIndex = Math.floor(Math.random() * happyQuotes.length);
+            quoteText.textContent = `"${happyQuotes[randomIndex]}"`;
+        });
+    </script>
+</body>
+</html>
