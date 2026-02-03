@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日开心时刻 | 收藏生活的小美好</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 配置Tailwind自定义主题（暖色调更贴合治愈系） -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        happy: '#F97316', // 主色调：暖橙（治愈、活力）
+                        sweet: '#EC4899',  // 辅助色：甜粉（温柔、美好）
+                        light: '#F5F5F4',  // 浅底色：米白
+                        dark: '#27272a',   // 文字色：深灰
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        handwriting: ['"Ma Shan Zheng"', 'cursive'], // 手写字体更有生活感
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            /* 磨砂玻璃效果 */
+            .backdrop-blur-custom {
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            /* 时间轴线（暖色调渐变） */
+            .timeline-line {
+                @apply absolute left-1/2 transform -translate-x-1/2 w-0.5 bg-gradient-to-b from-happy to-sweet h-full z-0;
+            }
+            /* 卡片滚动渐入动画 */
+            .fade-in {
+                opacity: 0;
+                transform: translateY(30px);
+                transition: opacity 0.8s ease, transform 0.8s ease;
+            }
+            .fade-in.active {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            /* 自定义开心滚动条 */
+            ::-webkit-scrollbar {
+                width: 8px;
+            }
+            ::-webkit-scrollbar-track {
+                @apply bg-light;
+            }
+            ::-webkit-scrollbar-thumb {
+                @apply bg-gradient-to-b from-happy to-sweet rounded-full;
+            }
+            /* 开心标签样式 */
+            .happy-tag {
+                @apply inline-block px-2 py-1 rounded-full text-xs mr-2 mb-2 bg-white shadow-sm border border-gray-100;
+            }
+        }
+    </style>
+    <!-- 引入手写字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-light to-white min-h-screen font-sans text-dark">
+    <!-- 顶部吸顶导航栏 -->
+    <header class="fixed top-0 w-full z-50 transition-all duration-300" id="navbar">
+        <div class="backdrop-blur-custom bg-white/80 border-b border-gray-100/50 py-4 px-6 md:px-12">
+            <div class="flex justify-between items-center max-w-7xl mx-auto">
+                <h1 class="text-2xl md:text-3xl font-handwriting text-transparent bg-clip-text bg-gradient-to-r from-happy to-sweet">
+                    每日开心时刻
+                </h1>
+                <button class="flex items-center gap-2 bg-gradient-to-r from-happy to-sweet text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+                    <i class="fa fa-plus"></i>
+                    <span class="hidden md:inline">记录今日开心</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 页面头部横幅 -->
+    <section class="pt-24 pb-16 md:pt-32 md:pb-24 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-3xl md:text-5xl font-bold mb-4 text-dark">
+                收藏每一个<span class="text-transparent bg-clip-text bg-gradient-to-r from-happy to-sweet">闪闪发光</span>的开心瞬间
+            </h2>
+            <p class="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto">
+                生活的美好，藏在每一天的小开心里。把快乐记下来，日子就会变得甜甜的～
+            </p>
+        </div>
+    </section>
+
+    <!-- 核心：每日开心时间轴 -->
+    <section class="px-6 pb-20">
+        <div class="max-w-5xl mx-auto relative">
+            <!-- 暖色调渐变时间轴线 -->
+            <div class="timeline-line"></div>
+
+            <!-- 今日开心（最新记录） -->
+            <div class="fade-in relative z-10 flex flex-col md:flex-row items-center mb-12 md:mb-16">
+                <div class="md:w-1/2 md:pr-12 mb-6 md:mb-0 md:text-right order-2 md:order-1">
+                    <span class="inline-block bg-happy/10 text-happy px-3 py-1 rounded-full text-sm mb-3">
+                        2023年10月2日 星期一 「今日开心」
+                    </span>
+                    <div class="mb-2">
+                        <span class="happy-tag">🥰 治愈</span>
+                        <span class="happy-tag">🍂 秋日</span>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2">天蓝，菜绿，风温柔</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                         今日份快乐，是田园给的！走进菜园子，才懂什么叫 “接地气的快乐”。看着一畦畦的嫩绿，心情都跟着透亮起来，眼前都是外公种的菜，整整齐齐，干干净净，看得出这老头也是有强迫症
+                    </p>
+                </div>
+                <div class="md:w-1/2 md:pl-12 order-1 md:order-2 flex flex-col items-center">
+                    <!-- 开心时间点标记 -->
+                    <div class="w-6 h-6 bg-gradient-to-r from-happy to-sweet rounded-full border-4 border-white shadow-lg mb-4 z-10"></div>
+                    <!-- 开心瞬间图片 -->
+                    <div class="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02]">
+                        <img src="https://i.postimg.cc/6qX6Y2LK/wei-xin-tu-pian-20260203144528.jpg" alt="桂花拿铁" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 昨日开心 -->
+            <div class="fade-in relative z-10 flex flex-col md:flex-row items-center mb-12 md:mb-16">
+                <div class="md:w-1/2 md:pr-12 flex flex-col items-center mb-6 md:mb-0">
+                    <div class="w-6 h-6 bg-gradient-to-r from-happy to-sweet rounded-full border-4 border-white shadow-lg mb-4 z-10"></div>
+                    <div class="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02]">
+                        <img src="https://i.postimg.cc/tTwbM1hm/wei-xin-tu-pian-20260203145904.jpg" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+                <div class="md:w-1/2 md:pl-12 text-left">
+                    <span class="inline-block bg-happy/10 text-happy px-3 py-1 rounded-full text-sm mb-3">
+                        2025年10月2日 星期一 「下午」
+                    </span>
+                    <div class="mb-2">
+                        <span class="happy-tag">🐱 撸猫</span>
+                        <span class="happy-tag">🥰 治愈</span>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2">生菜，自由的向往</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        就这块地，春去秋来地上有着我的童年，底下埋着我的祖祖辈辈，怎能不令人向往
+                    </p>
+                </div>
+            </div>
+
+            <!-- 10月2日开心 -->
+            <div class="fade-in relative z-10 flex flex-col md:flex-row items-center mb-12 md:mb-16">
+                <div class="md:w-1/2 md:pr-12 mb-6 md:mb-0 md:text-right order-2 md:order-1">
+                    <span class="inline-block bg-happy/10 text-happy px-3 py-1 rounded-full text-sm mb-3">
+                        2025年10月3日 星期二 「前日开心」
+                    </span>
+                    <div class="mb-2">
+                        <span class="happy-tag">🍜 记录</span>
+                        <span class="happy-tag">💼 田园</span>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2">站在这块土地上，才没有感觉被束缚</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        今日份下乡体验卡✅摘葱、玩水、用小橘子当墨镜，在田野里把日子过成了诗。
+在乡下的快乐这么简单：有葱摘、有瓜玩，还有长辈的专属投喂～
+一篮葱，两颗果，一方田埂。这是属于我们的、鲜活又温暖的夏日记忆。
+                    </p>
+                </div>
+                <div class="md:w-1/2 md:pl-12 order-1 md:order-2 flex flex-col items-center">
+                    <div class="w-6 h-6 bg-gradient-to-r from-happy to-sweet rounded-full border-4 border-white shadow-lg mb-4 z-10"></div>
+                    <div class="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02]">
+                        <img src="https://i.postimg.cc/zDHHXKPf/wei-xin-tu-pian-20260203150707.jpg" alt="田园生活" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10月3日开心 -->
+            <div class="fade-in relative z-10 flex flex-col md:flex-row items-center mb-12 md:mb-16">
+                <div class="md:w-1/2 md:pr-12 flex flex-col items-center mb-6 md:mb-0">
+                    <div class="w-6 h-6 bg-gradient-to-r from-happy to-sweet rounded-full border-4 border-white shadow-lg mb-4 z-10"></div>
+                    <div class="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02]">
+                        <img src="https://i.postimg.cc/TPyfqqbk/wei-xin-tu-pian-20260203151055.jpg alt="小时候感觉这条小河很宽，怎么也跨不过去" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+                <div class="md:w-1/2 md:pl-12 text-left">
+                    <span class="inline-block bg-happy/10 text-happy px-3 py-1 rounded-full text-sm mb-3">
+                        2025年10月03日 星期二 「往日开心」
+                    </span>
+                    <div class="mb-2">
+                        <span class="happy-tag">🎶 音乐</span>
+                        <span class="happy-tag">🚶 散步</span>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2">小时候，趴在这小河边扒龙虾 h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        小时候趴在这条河里扒龙虾，小时候也不觉得手疼，也不管是不是蛇洞看见洞手直接伸进去，龙虾一夹，连龙虾一直带出来，一直龙虾可以玩很久                    </p>
+                </div>
+            </div>
+
+            <!-- 10月8日开心 -->
+            <div class="fade-in relative z-10 flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 md:pr-12 mb-6 md:mb-0 md:text-right order-2 md:order-1">
+                    <span class="inline-block bg-happy/10 text-happy px-3 py-1 rounded-full text-sm mb-3">
+                        2025年10月08日 星期三 「往日开心」
+                    </span>
+                    <div class="mb-2">
+                        <span class="happy-tag">🌱 绿植</span>
+                        <span class="happy-tag">✨ 小惊喜</span>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2">家通向外婆家的小道</h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        这条小道，我家通向外婆家的小道，走了不知道多少遍
+童年是梦中的真，是真中的梦是回忆时含泪的微笑
+                    </p>
+                </div>
+                <div class="md:w-1/2 md:pl-12 order-1 md:order-2 flex flex-col items-center">
+                    <div class="w-6 h-6 bg-gradient-to-r from-happy to-sweet rounded-full border-4 border-white shadow-lg mb-4 z-10"></div>
+                    <div class="rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02]">
+                        <img src="https://i.postimg.cc/PxrcQd93/wei-xin-tu-pian-20260203152757.jpg" alt="童年" class="w-full h-auto object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部治愈系footer -->
+    <footer class="bg-dark/95 text-white py-8 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <p class="font-handwriting text-xl mb-2">每日开心时刻 &copy; 2025</p>
+            <p class="text-gray-400 text-sm">把快乐记下来，日子会越来越甜 ✨</p>
+        </div>
+    </footer>
+
+    <!-- 核心交互JS（滚动渐入+导航吸顶） -->
+    <script>
+        // 导航栏滚动渐变效果
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-white/95', 'py-2', 'shadow-md');
+                navbar.classList.remove('bg-white/80', 'py-4');
+            } else {
+                navbar.classList.add('bg-white/80', 'py-4');
+                navbar.classList.remove('bg-white/95', 'py-2', 'shadow-md');
+            }
+        });
+
+        // 卡片滚动渐入动画
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const checkFade = () => {
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight * 0.8;
+                if (elementTop < windowHeight) {
+                    element.classList.add('active');
+                }
+            });
+        };
+        // 页面加载+滚动时触发动画
+        window.addEventListener('load', checkFade);
+        window.addEventListener('scroll', checkFade);
+    </script>
+</body>
+</html>
